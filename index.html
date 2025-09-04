@@ -32,6 +32,17 @@
             transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
             overflow-x: hidden;
         }
+        
+        .animated-content {
+            opacity: 1;
+            transform: translateY(0);
+            transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
 
         .container {
             background-color: var(--card-background);
@@ -52,12 +63,12 @@
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: clamp(1.8em, 4vw, 2.5em);
             text-align: center;
         }
 
         h2 {
-            font-size: 1.8em;
+            font-size: clamp(1.4em, 3vw, 1.8em);
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
@@ -99,7 +110,7 @@
             width: fit-content;
             margin: 40px auto 0;
             padding: 16px 32px;
-            font-size: 1.2em;
+            font-size: clamp(1em, 2vw, 1.2em);
             color: #fff;
             background-color: var(--primary-color);
             border: none;
@@ -167,7 +178,7 @@
             justify-content: center;
             align-items: center;
             color: var(--heading-color);
-            font-size: 2em;
+            font-size: clamp(1.5em, 5vw, 2em);
             flex-direction: column;
             text-align: center;
             z-index: 1000;
@@ -180,15 +191,21 @@
         }
 
         .overlay h1 {
-            font-size: 3.5em;
+            font-size: clamp(2.5em, 8vw, 3.5em);
             margin-bottom: 20px;
         }
 
         .overlay p {
-            font-size: 1.5em;
+            font-size: clamp(1.2em, 3vw, 1.5em);
             opacity: 0.8;
         }
 
+        .loading-dots {
+            display: inline-block;
+            width: 1.5em; /* Pevná šířka pro tečky */
+            overflow: hidden;
+        }
+        
         .loading-dots::after {
             content: '...';
             animation: dots 1s steps(3, end) infinite;
@@ -226,12 +243,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 2.5em;
+            font-size: clamp(1.8em, 5vw, 2.5em);
             color: var(--heading-color);
             background-color: var(--background-color);
             text-align: center;
             z-index: 999;
             animation: fadeIn 0.5s ease forwards;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .blue-background {
@@ -264,7 +283,7 @@
             padding: 20px;
             box-sizing: border-box;
             background-color: transparent;
-            min-height: 500px;
+            min-height: 50vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -286,7 +305,7 @@
         }
 
         .logo-img {
-            max-width: 90%;
+            max-width: 90vw;
             height: auto;
             margin-bottom: 20px;
             opacity: 0;
@@ -310,7 +329,7 @@
         }
         
         #updatePercentage {
-            font-size: 5em;
+            font-size: clamp(3em, 10vw, 5em);
             font-weight: bold;
             color: white;
         }
@@ -336,7 +355,7 @@
             "Podezřelé telefonáty jsou zahozeny a budete upozorněni",
             "Vylepšení ochrany proti spamu a phishingu",
             "Přidáváme nová jádra ochrany, která dokáží detekovat i složité hrozby v reálném čase a detekovat útoky phishing",
-            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shopy, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
+            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shop, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
             "Provádíme hloubkovou úpravu jader ochrany, aby byla ochrana rychlejší a spolehlivější",
             "Celkem 8 nových jader ochrany",
             "V pozadí pracujeme na úpravách, které poslouží jako základ budoucích vylepšení",
@@ -406,8 +425,7 @@
                     </div>
                 `;
                 contentDiv.classList.remove('fade-out');
-                contentDiv.classList.add('fade-in');
-
+                
                 let progress = 0;
                 const totalTime = 13 * 60 * 1000;
                 const totalBytes = 1.48 * 1024 * 1024 * 1024;
@@ -457,7 +475,6 @@
                 </div>
             `;
             contentDiv.classList.remove('fade-out');
-            contentDiv.classList.add('fade-in');
             document.getElementById('installButton').addEventListener('click', startInstallationSequence);
         }
 
@@ -495,7 +512,7 @@
                 <div id="blueScreen" class="full-screen-text blue-background">
                     <p>Aktualizace jsou na cestě.</p>
                     <h1 id="percentage">30 %</h1>
-                    <p class="loading-dots"></p>
+                    <p>...</p>
                 </div>
             `;
             const percentageElement = document.getElementById('percentage');
@@ -528,8 +545,8 @@
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
                     <img src="obrazek1.png" alt="Logo 1" class="logo-img">
-                    <p id="updateProgressText" class="animated-text" style="margin-top: 15px; font-size: 1.5em;"></p>
-                    <h1 id="updatePercentage" class="animated-text" style="margin-top: 10px; font-size: 3em; color: white;">0 %</h1>
+                    <p id="updateProgressText" class="animated-text" style="margin-top: 15px; font-size: clamp(1.2em, 3vw, 1.5em);"></p>
+                    <h1 id="updatePercentage" class="animated-text" style="margin-top: 10px; font-size: clamp(3em, 10vw, 5em); color: white;">0 %</h1>
                 </div>
             `;
             const updateProgressText = document.getElementById('updateProgressText');
@@ -579,8 +596,8 @@
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
                     <img src="obrazek2.png" alt="Logo 2" class="logo-img">
-                    <p class="animated-text" style="margin-top: 20px; font-size: 1.2em;">Powered by Rudolfský Software</p>
-                    <p class="animated-text" style="font-size: 1.2em;">Kernel by RS</p>
+                    <p class="animated-text" style="margin-top: 20px; font-size: clamp(1em, 2vw, 1.2em);">Powered by Rudolfský Software</p>
+                    <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Kernel by RS</p>
                 </div>
             `;
             setTimeout(showWorkingOnUpdates, 14000);
@@ -603,7 +620,7 @@
             function showNextDynamicText() {
                 if (currentDynamicTextIndex < dynamicTexts.length) {
                     dynamicTextScreen.innerHTML = `
-                        <p class="animated-text" style="color: white; font-size: 1.8em; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
+                        <p class="animated-text" style="color: white; font-size: clamp(1.5em, 4vw, 1.8em); text-shadow: 0 0 10px rgba(255,255,255,0.2);">
                             ${dynamicTexts[currentDynamicTextIndex]}
                         </p>
                         <div class="spinner" style="border-top-color: white;"></div>`;
@@ -701,7 +718,7 @@
                 <div id="ntsInstallationSlide" class="slide active">
                     <h1 class="animated-text">Nyní pojďme doinstalovat Internet NTS</h1>
                     <p class="animated-text">Za chvíli Vás přesměrujeme na stažení Internet NTS. Pro stažení využijte tlačítko stáhnout a postupujte podle pokynů pro stažení, případně se obraťte na internet@nts.cz.</p>
-                    <p class="animated-text" style="font-size: 1.2em;">Čekejte na přesměrování<span class="loading-dots"></span></p>
+                    <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Čekejte na přesměrování<span class="loading-dots"></span></p>
                 </div>
             `;
             setTimeout(() => {
