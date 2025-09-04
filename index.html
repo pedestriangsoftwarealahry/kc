@@ -132,6 +132,16 @@
             cursor: not-allowed;
             opacity: 0.7;
         }
+        
+        .button.white-on-blue {
+            background-color: #ffffff;
+            color: var(--primary-color);
+        }
+        
+        .button.white-on-blue:hover {
+            background-color: #f0f0f0;
+            color: var(--secondary-color);
+        }
 
         .progress-bar-container {
             width: 100%;
@@ -252,6 +262,10 @@
             padding: 20px;
             box-sizing: border-box;
         }
+        
+        .full-screen-text .loading-dots-container {
+            margin-top: 10px;
+        }
 
         .blue-background {
             background-color: #007bff;
@@ -349,7 +363,7 @@
             "Vylepšení ochrany v reálném čase - nyní dokážeme malware zachytit ještě dříve, než na vaše zařízení dorazí, už to neplatí jen u SMS a e-mailů, ale i malwaru, telefonátů nebo hackerských útoků",
             "Oprava celkem 56 zranitelných sběrnic portů proti úniku dat",
             "Přidání dalších 521 databází s uniklými hesly, abyste mohli ověřit, zda tam nejsou i Vaše",
-            "Vylepšení funkce pro hledání uniklých dat - hledejte nyní jakákoli data a to i ta, která neunikla z Vašeho zařízení (díky implementaci cmd.exe)",
+            "Vylepšení funkce pro hledání uniklých dat - hledejte nyní jakákola data a to i ta, která neunikla z Vašeho zařízení (díky implementaci cmd.exe)",
             "Na CallBlackList přidáváme dalších 9654128 telefonních čísel, která spadají do kategorie obtěžující, podvodné, malwarové (platí pro telefonáty, pro SMS platí NTS BlackList, který obsahuje stejná čísla)",
             "Vylepšení funkce pro hledání malwaru v obrázku, videích a hlasových nahrávkách",
             "Podezřelé telefonáty jsou zahozeny a budete upozorněni",
@@ -606,7 +620,8 @@
         function showWorkingOnUpdates() {
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
-                    <p class="animated-text">Pracujeme na aktualizacích<span class="loading-dots"></span></p>
+                    <p class="animated-text">Pracujeme na aktualizacích</p>
+                    <p class="loading-dots-container"><span class="loading-dots"></span></p>
                 </div>
             `;
             setTimeout(showDynamicTextSequence, (3 * 60 + 21) * 1000);
@@ -643,12 +658,13 @@
                     <div id="slide-wrapper">
                         <div id="slide-0" class="slide active">
                             <h1 class="animated-text">Podívejme se, co je v CyberSecure nového!</h1>
-                            <button id="nextSlideButton" class="button animated-text">Další</button>
+                            <button id="nextSlideButton" class="button animated-text white-on-blue">Další</button>
                         </div>
                     </div>
                 </div>
             `;
-            document.getElementById('nextSlideButton').addEventListener('click', () => nextSlide(document.getElementById('slide-0')));
+            const nextButton = document.getElementById('nextSlideButton');
+            nextButton.addEventListener('click', () => nextSlide(document.getElementById('slide-0')));
         }
 
         function nextSlide(currentSlide) {
@@ -675,7 +691,7 @@
                     `;
                 }
 
-                newSlide.innerHTML = `${slideContent}<button id="nextSlideButton" class="button animated-text">${buttonText}</button>`;
+                newSlide.innerHTML = `${slideContent}<button id="nextSlideButton" class="button animated-text white-on-blue">${buttonText}</button>`;
                 
                 slideWrapper.appendChild(newSlide);
                 currentUpdateLogIndex++;
@@ -685,7 +701,11 @@
                     currentSlide.classList.add('previous');
                     newSlide.classList.remove('next');
                     newSlide.classList.add('active');
-                    document.getElementById('nextSlideButton').addEventListener('click', () => nextSlide(newSlide));
+                    
+                    const nextButton = newSlide.querySelector('#nextSlideButton');
+                    if (nextButton) {
+                        nextButton.addEventListener('click', () => nextSlide(newSlide));
+                    }
                 }, 50);
 
             } else {
@@ -705,7 +725,7 @@
                     <div id="finishedSlide" class="slide active">
                         <h1 class="animated-text">CyberSecure se aktualizoval na nejnovější verzi!</h1>
                         <p class="animated-text">Ochrana je spuštěna a CyberSecure je aktuální. Nyní jste na maximum chráněni. Děkujeme za důvěru. New Technology Software.</p>
-                        <button id="finalNextButton" class="button animated-text">Další</button>
+                        <button id="finalNextButton" class="button animated-text white-on-blue">Další</button>
                     </div>
                 `;
                 document.getElementById('finalNextButton').addEventListener('click', showInternetNTSInstallation);
@@ -718,7 +738,8 @@
                 <div id="ntsInstallationSlide" class="slide active">
                     <h1 class="animated-text">Nyní pojďme doinstalovat Internet NTS</h1>
                     <p class="animated-text">Za chvíli Vás přesměrujeme na stažení Internet NTS. Pro stažení využijte tlačítko stáhnout a postupujte podle pokynů pro stažení, případně se obraťte na internet@nts.cz.</p>
-                    <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Čekejte na přesměrování<span class="loading-dots"></span></p>
+                    <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Čekejte na přesměrování</p>
+                    <p class="loading-dots-container"><span class="loading-dots"></span></p>
                 </div>
             `;
             setTimeout(() => {
@@ -730,4 +751,3 @@
     </script>
 </body>
 </html>
-
