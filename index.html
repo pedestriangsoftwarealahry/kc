@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aktualizace CyberSecure NTS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #0056b3;
+            --background-color: #121212;
+            --card-background: #1e1e1e;
+            --text-color: #e0e0e0;
+            --heading-color: #ffffff;
+            --border-color: #333;
+            --accent-green: #28a745;
+            --accent-blue: #3498db;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            max-width: 900px;
+            width: 95%;
+            transform: translateY(0);
+            transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        }
+
+        h1, h2, h3 {
+            color: var(--heading-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        li::before {
+            content: '✓';
+            color: var(--accent-green);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 40px 0;
+        }
+
+        .button {
+            display: block;
+            width: fit-content;
+            margin: 40px auto 0;
+            padding: 16px 32px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .button:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 50px;
+            height: 35px;
+            margin-top: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-green);
+            border-radius: 50px;
+            text-align: center;
+            line-height: 35px;
+            color: var(--heading-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--heading-color);
+            font-size: 2em;
+            flex-direction: column;
+            text-align: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .overlay h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1s steps(3, end) infinite;
+        }
+        
+        @keyframes dots {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+
+        .spinner {
+            border: 8px solid var(--border-color);
+            border-top: 8px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s cubic-bezier(0.5, 0.25, 0.25, 0.75) infinite;
+            margin-top: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .full-screen-text {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            color: var(--heading-color);
+            background-color: var(--background-color);
+            text-align: center;
+            z-index: 999;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .blue-background {
+            background-color: #007bff;
+        }
+
+        .white-background {
+            background-color: var(--card-background);
+        }
+
+        .dynamic-text-screen {
+            background-color: #000;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .slide-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slide {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.5s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: transparent;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide.active {
+            transform: translateX(0);
+            position: relative;
+        }
+
+        .slide.previous {
+            transform: translateX(-100%);
+        }
+
+        .slide.next {
+            transform: translateX(100%);
+        }
+
+        .logo-img {
+            max-width: 90%;
+            height: auto;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: logoFadeIn 1s forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes logoFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animated-text {
+            animation: textFadeIn 1s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @keyframes textFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #updatePercentage {
+            font-size: 5em;
+            font-weight: bold;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="content" class="container">
+        </div>
+
+    <script>
+        const contentDiv = document.getElementById('content');
+        const updateLog = [
+            "Přidáváme celkem 1863 nových antimalwarových definic, abyste zůstali chráněni i před nejnovějšími útoky malwaru",
+            "Přidáváme bezpečnostní prvky, které zabrání novým 780 typům hackerského útoku",
+            "Aktualizace seznamu NTS BlackList, na kterém nově přibyde 5981 nových podvodných stránek a aplikací",
+            "Vylepšení ochrany v reálném čase - nyní dokážeme malware zachytit ještě dříve, než na vaše zařízení dorazí, už to neplatí jen u SMS a e-mailů, ale i malwaru, telefonátů nebo hackerských útoků",
+            "Oprava celkem 56 zranitelných sběrnic portů proti úniku dat",
+            "Přidání dalších 521 databází s uniklými hesly, abyste mohli ověřit, zda tam nejsou i Vaše",
+            "Vylepšení funkce pro hledání uniklých dat - hledejte nyní jakákoli data a to i ta, která neunikla z Vašeho zařízení (díky implementaci cmd.exe)",
+            "Na CallBlackList přidáváme dalších 9654128 telefonních čísel, která spadají do kategorie obtěžující, podvodné, malwarové (platí pro telefonáty, pro SMS platí NTS BlackList, který obsahuje stejná čísla)",
+            "Vylepšení funkce pro hledání malwaru v obrázku, videích a hlasových nahrávkách",
+            "Podezřelé telefonáty jsou zahozeny a budete upozorněni",
+            "Vylepšení ochrany proti spamu a phishingu",
+            "Přidáváme nová jádra ochrany, která dokáží detekovat i složité hrozby v reálném čase a detekovat útoky phishing",
+            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shopy, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
+            "Provádíme hloubkovou úpravu jader ochrany, aby byla ochrana rychlejší a spolehlivější",
+            "Celkem 8 nových jader ochrany",
+            "V pozadí pracujeme na úpravách, které poslouží jako základ budoucích vylepšení",
+            "Přidání součásti aplikace Internet NTS, pro sledování Wi-Fi"
+        ];
+
+        const dynamicTexts = [
+            "Děkujeme za trpělivost!",
+            "Verze CyberSecure NTS bude povýšena...",
+            "Teď se podívejme, co je v CyberSecure nového...",
+            "Ještě pořád na tom děláme...",
+            "Nechte to na nás...",
+            "Teď musíme provést důležité nastavení, čekejte prosím...",
+            "Teď se podívejme, co je CyberSecure nového...",
+            "Dokončujeme poslední kroky!",
+            "Kontrolujeme, že jsme vše udělali správně...",
+            "Připravujeme vše, co bude potřeba..."
+        ];
+
+        const dynamicTextDurations = [
+            16000, 46000, 19000, 38000, 21000, 56000, 15000, 29000, 90000, 18000
+        ];
+
+        let currentUpdateLogIndex = 0;
+        let currentDynamicTextIndex = 0;
+
+        function showPage1() {
+            contentDiv.innerHTML = `
+                <div class="animated-content">
+                    <h1>Aktualizace CyberSecure NTS je dostupná pro vaše zařízení.</h1>
+                    <p>Vážený uživateli, pro Vaše zařízení Android je dostupná kumulativní aktualizace CyberSecure NTS. Na systémech Windows a Linux proběhne aktualizace automaticky po připojení k internetu.</p>
+                    <h2>Co je v CyberSecure nového:</h2>
+                    <ul>
+                        ${updateLog.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <hr>
+                    <p>Aktualizaci stáhněte tlačítkem níže. Bude to trvat déle, než obvykle, prosíme o strpení.</p>
+                    <ul>
+                        <li>Velikost aktualizace: 1,48 GB</li>
+                        <li>Server: NTS\\Soukrome\\CyberSecureNTS\\Updates\\39</li>
+                        <li>Potřebujete připojení k internetu neúčtované podle objemu dat. V opačném případě mohou být účtovány další poplatky za přenesená data.</li>
+                    </ul>
+                    <button id="downloadButton" class="button">Stáhnout aktualizaci</button>
+                </div>
+            `;
+            document.getElementById('downloadButton').addEventListener('click', startDownload);
+            document.body.style.backgroundColor = 'var(--background-color)';
+        }
+
+        function startDownload() {
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.disabled = true;
+            downloadButton.textContent = "Stahování...";
+            contentDiv.classList.add('fade-out');
+            
+            setTimeout(() => {
+                contentDiv.innerHTML = `
+                    <div class="animated-content">
+                        <h1>Stahování aktualizace...</h1>
+                        <div class="progress-bar-container">
+                            <div id="progressBar" class="progress-bar"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span id="progressStart">0 B</span>
+                            <span id="progressEnd">1.48 GB</span>
+                        </div>
+                    </div>
+                `;
+                contentDiv.classList.remove('fade-out');
+                contentDiv.classList.add('fade-in');
+
+                let progress = 0;
+                const totalTime = 13 * 60 * 1000;
+                const totalBytes = 1.48 * 1024 * 1024 * 1024;
+                const startTime = Date.now();
+
+                function updateProgress() {
+                    const elapsedTime = Date.now() - startTime;
+                    progress = Math.min(100, (elapsedTime / totalTime) * 100);
+                    const progressBar = document.getElementById('progressBar');
+                    if (progressBar) {
+                        progressBar.style.width = progress + '%';
+                        const downloadedBytes = (progress / 100) * totalBytes;
+                        progressBar.textContent = formatBytes(downloadedBytes);
+                    }
+                    if (progress < 100) {
+                        requestAnimationFrame(updateProgress);
+                    } else {
+                        setTimeout(() => {
+                            contentDiv.classList.add('fade-out');
+                            setTimeout(showPage2, 800);
+                        }, 1000);
+                    }
+                }
+                requestAnimationFrame(updateProgress);
+            }, 800);
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function showPage2() {
+            contentDiv.innerHTML = `
+                <div class="animated-content">
+                    <h1>Aktualizace je připravena k instalaci!</h1>
+                    <p>Aktualizace aplikace CyberSecure NTS je připravena k instalaci. Instalace zabere několik minut. Během instalace nevypínejte zařízení.</p>
+                    <p><strong>Varování:</strong> Během instalace se pozastaví ochranné moduly CyberSecure NTS. Doporučujeme neotevírat žádné zprávy, stránky, e-maily ani nic jiného. Vyčkejte prosím na dokončení aktualizace a následně se ochrana automaticky spustí zpět.</p>
+                    <p><strong>Důležité:</strong> Nezavírejte aplikaci CyberSecure NTS během instalace aktualizace, mohlo by to způsobit problém s aktualizací! Děkujeme za pochopení.</p>
+                    <p><strong>Poznámka:</strong> Jelikož během instalace aktualizace proběhne aktualizace a úprava jader aplikace, je potřeba CyberSecure restartovat a následně se CyberSecure spustí v módu DriverUpdater, kdy proběhne aktualizace bez Vašeho dalšího zásahu. Po dokončení aktualizace se CyberSecure automaticky restartuje a spustí se v běžném režimu a obnoví se ochrana.</p>
+                    <p>Nyní prosím pokračujte kliknutím na tlačítko níže...</p>
+                    <button id="installButton" class="button">Restartovat CyberSecure a nainstalovat aktualizace</button>
+                </div>
+            `;
+            contentDiv.classList.remove('fade-out');
+            contentDiv.classList.add('fade-in');
+            document.getElementById('installButton').addEventListener('click', startInstallationSequence);
+        }
+
+        function showOverlay(message, duration, nextStep) {
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.innerHTML = `<p class="animated-text">${message}</p>`;
+            document.body.appendChild(overlay);
+
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.remove();
+                    if (nextStep) {
+                        nextStep();
+                    }
+                }, 500);
+            }, duration);
+        }
+
+        function startInstallationSequence() {
+            contentDiv.style.display = 'none';
+            document.body.style.backgroundColor = 'var(--background-color)';
+            showOverlay("Ukončování procesu NTS-core-antimalware...", 10000, () => {
+                showOverlay("Ukončování jader ochrany...", 5000, () => {
+                    showOverlay("Ukončování aktivních prvků CyberSecure...", 24000, () => {
+                        showOverlay("Příprava na aktualizaci...", 9000, showBlueScreen);
+                    });
+                });
+            });
+        }
+
+        function showBlueScreen() {
+            document.body.innerHTML = `
+                <div id="blueScreen" class="full-screen-text blue-background">
+                    <p>Aktualizace jsou na cestě.</p>
+                    <h1 id="percentage">30 %</h1>
+                    <p class="loading-dots"></p>
+                </div>
+            `;
+            const percentageElement = document.getElementById('percentage');
+            setTimeout(() => {
+                percentageElement.textContent = "50 %";
+                setTimeout(() => {
+                    percentageElement.textContent = "75 %";
+                    setTimeout(() => {
+                        percentageElement.textContent = "100 %";
+                        setTimeout(showBlackScreenRestarting, 2000);
+                    }, 32000);
+                }, 12000);
+            }, 14000);
+        }
+
+        function showBlackScreenRestarting() {
+            document.body.innerHTML = `
+                <div class="full-screen-text" style="background-color: black;">
+                    <p class="animated-text">Restartování...</p>
+                    <div class="spinner"></div>
+                </div>
+            `;
+            setTimeout(() => {
+                document.body.innerHTML = `<div class="full-screen-text" style="background-color: black;"></div>`;
+                setTimeout(showLogo1, 5000);
+            }, 13000);
+        }
+        
+        function showLogo1() {
+            document.body.innerHTML = `
+                <div class="full-screen-text" style="background-color: black;">
+                    <img src="obrazek1.png" alt="Logo 1" class="logo-img">
+                    <p id="updateProgressText" class="animated-text" style="margin-top: 15px; font-size: 1.5em;"></p>
+                    <h1 id="updatePercentage" class="animated-text" style="margin-top: 10px; font-size: 3em; color: white;">0 %</h1>
+                </div>
+            `;
+            const updateProgressText = document.getElementById('updateProgressText');
+            const updatePercentage = document.getElementById('updatePercentage');
+
+            setTimeout(() => {
+                updateProgressText.textContent = "Probíhá aktualizace CyberSecure NTS...";
+                let progress = 0;
+                const totalTime = 6 * 60 * 1000;
+                const startTime = Date.now();
+
+                function animateUpdateProgress() {
+                    const elapsedTime = Date.now() - startTime;
+                    progress = Math.min(100, (elapsedTime / totalTime) * 100);
+                    updatePercentage.textContent = `${Math.floor(progress)} %`;
+                    if (progress < 100) {
+                        requestAnimationFrame(animateUpdateProgress);
+                    } else {
+                        setTimeout(() => {
+                            document.body.innerHTML = `<div class="full-screen-text" style="background-color: black;"></div>`;
+                            setTimeout(showLogo1Again, 5000);
+                        }, 1000);
+                    }
+                }
+                requestAnimationFrame(animateUpdateProgress);
+            }, 15000);
+        }
+
+        function showLogo1Again() {
+            document.body.innerHTML = `
+                <div class="full-screen-text" style="background-color: black;">
+                    <img src="obrazek1.png" alt="Logo 1" class="logo-img">
+                </div>
+            `;
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="full-screen-text" style="background-color: black;">
+                        <img src="obrazek1.png" alt="Logo 1" class="logo-img">
+                        <div class="spinner" style="margin-top: 20px;"></div>
+                    </div>
+                `;
+                setTimeout(showLogo2, 16000);
+            }, 7000);
+        }
+
+        function showLogo2() {
+            document.body.innerHTML = `
+                <div class="full-screen-text" style="background-color: black;">
+                    <img src="obrazek2.png" alt="Logo 2" class="logo-img">
+                    <p class="animated-text" style="margin-top: 20px; font-size: 1.2em;">Powered by Rudolfský Software</p>
+                    <p class="animated-text" style="font-size: 1.2em;">Kernel by RS</p>
+                </div>
+            `;
+            setTimeout(showWorkingOnUpdates, 14000);
+        }
+
+        function showWorkingOnUpdates() {
+            document.body.innerHTML = `
+                <div class="full-screen-text" style="background-color: black;">
+                    <p class="animated-text">Pracujeme na aktualizacích<span class="loading-dots"></span></p>
+                </div>
+            `;
+            setTimeout(showDynamicTextSequence, (3 * 60 + 21) * 1000);
+        }
+
+        function showDynamicTextSequence() {
+            document.body.innerHTML = `<div id="dynamicTextScreen" class="full-screen-text white-background"></div>`;
+            const dynamicTextScreen = document.getElementById('dynamicTextScreen');
+            document.body.style.backgroundColor = 'var(--card-background)';
+
+            function showNextDynamicText() {
+                if (currentDynamicTextIndex < dynamicTexts.length) {
+                    dynamicTextScreen.innerHTML = `
+                        <p class="animated-text" style="color: white; font-size: 1.8em; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
+                            ${dynamicTexts[currentDynamicTextIndex]}
+                        </p>
+                        <div class="spinner" style="border-top-color: white;"></div>`;
+                    const duration = dynamicTextDurations[currentDynamicTextIndex];
+                    currentDynamicTextIndex++;
+                    setTimeout(showNextDynamicText, duration);
+                } else {
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = 'var(--primary-color)';
+                        showWelcomeSlides();
+                    }, 1000);
+                }
+            }
+            showNextDynamicText();
+        }
+
+        function showWelcomeSlides() {
+            document.body.innerHTML = `
+                <div class="container slide-container" style="background-color: transparent; box-shadow: none;">
+                    <div id="slide-wrapper">
+                        <div id="slide-0" class="slide active">
+                            <h1 class="animated-text">Podívejme se, co je v CyberSecure nového!</h1>
+                            <button id="nextSlideButton" class="button animated-text">Další</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('nextSlideButton').addEventListener('click', () => nextSlide(document.getElementById('slide-0')));
+        }
+
+        function nextSlide(currentSlide) {
+            const slideWrapper = document.getElementById('slide-wrapper');
+            
+            if (currentUpdateLogIndex < updateLog.length) {
+                const newSlide = document.createElement('div');
+                newSlide.className = 'slide next';
+                newSlide.id = 'slide-' + (currentUpdateLogIndex + 1);
+
+                let slideContent = '';
+                let buttonText = 'Další';
+
+                if (currentUpdateLogIndex === updateLog.length - 1) {
+                    slideContent = `
+                        <h2 class="animated-text">Podívejte se, v čem jsme se zlepšili.</h2>
+                        <p class="animated-text">${updateLog[currentUpdateLogIndex]} Stáhněte si aplikaci Internet NTS, sledujte aktuální výpadky Wi-Fi, ověřte, proč Vám nefunguje internet nebo nahlaste nový problém s internetem nebo výpadek. Také můžete sledovat rychlost internetu a když je nutný restart internetu, tak jej bez meškání provést pro zajištění stabilního připojení! Aplikaci Vám za okamžik pomůžeme nainstalovat, ale nejdříve dokončím aktualizaci CyberSecure NTS...</p>
+                    `;
+                    buttonText = 'Dokončit';
+                } else {
+                    slideContent = `
+                        <h2 class="animated-text">Podívejte se, v čem jsme se zlepšili.</h2>
+                        <p class="animated-text">${updateLog[currentUpdateLogIndex]}</p>
+                    `;
+                }
+
+                newSlide.innerHTML = `${slideContent}<button id="nextSlideButton" class="button animated-text">${buttonText}</button>`;
+                
+                slideWrapper.appendChild(newSlide);
+                currentUpdateLogIndex++;
+                
+                setTimeout(() => {
+                    currentSlide.classList.remove('active');
+                    currentSlide.classList.add('previous');
+                    newSlide.classList.remove('next');
+                    newSlide.classList.add('active');
+                    document.getElementById('nextSlideButton').addEventListener('click', () => nextSlide(newSlide));
+                }, 50);
+
+            } else {
+                startProtectionSequence2();
+            }
+        }
+
+        function startProtectionSequence2() {
+            const slideWrapper = document.getElementById('slide-wrapper');
+            slideWrapper.innerHTML = `
+                <div id="protectionSlide" class="slide active">
+                    <h1 class="animated-text">Spouštění ochrany CyberSecure...</h1>
+                </div>
+            `;
+            setTimeout(() => {
+                slideWrapper.innerHTML = `
+                    <div id="finishedSlide" class="slide active">
+                        <h1 class="animated-text">CyberSecure se aktualizoval na nejnovější verzi!</h1>
+                        <p class="animated-text">Ochrana je spuštěna a CyberSecure je aktuální. Nyní jste na maximum chráněni. Děkujeme za důvěru. New Technology Software.</p>
+                        <button id="finalNextButton" class="button animated-text">Další</button>
+                    </div>
+                `;
+                document.getElementById('finalNextButton').addEventListener('click', showInternetNTSInstallation);
+            }, 14000);
+        }
+
+        function showInternetNTSInstallation() {
+            const slideWrapper = document.getElementById('slide-wrapper');
+            slideWrapper.innerHTML = `
+                <div id="ntsInstallationSlide" class="slide active">
+                    <h1 class="animated-text">Nyní pojďme doinstalovat Internet NTS</h1>
+                    <p class="animated-text">Za chvíli Vás přesměrujeme na stažení Internet NTS. Pro stažení využijte tlačítko stáhnout a postupujte podle pokynů pro stažení, případně se obraťte na internet@nts.cz.</p>
+                    <p class="animated-text" style="font-size: 1.2em;">Čekejte na přesměrování<span class="loading-dots"></span></p>
+                </div>
+            `;
+            setTimeout(() => {
+                window.location.href = "https://internet.cs.ntscz.cz/download";
+            }, 30000);
+        }
+
+        document.addEventListener('DOMContentLoaded', showPage1);
+    </script>
+</body>
+</html>
