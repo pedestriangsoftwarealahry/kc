@@ -328,25 +328,30 @@
             max-width: 90vw;
             height: auto;
             margin-bottom: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s, transform 1s;
+            /* Odebrány transformace pro plynulý přechod, opacity bude ovládat "bliknutí" */
         }
 
-        .logo-visible {
+        /* Třídy pro okamžité zobrazení/skrytí loga */
+        .show-element {
             opacity: 1;
-            transform: translateY(0);
+            transition: opacity 0s; /* Okamžité zobrazení */
         }
 
-        .logo-hidden {
+        .hide-element {
             opacity: 0;
-            transform: translateY(-20px);
+            transition: opacity 0s; /* Okamžité skrytí */
         }
         
         #updatePercentage {
             font-size: clamp(3em, 10vw, 5em);
             font-weight: bold;
             color: white;
+        }
+
+        .bottom-spinner {
+            position: absolute;
+            bottom: 50px; /* Upravte podle potřeby */
+            /* Zde můžete nastavit left/right pro horizontální pozici */
         }
     </style>
 </head>
@@ -370,7 +375,7 @@
             "Podezřelé telefonáty jsou zahozeny a budete upozorněni",
             "Vylepšení ochrany proti spamu a phishingu",
             "Přidáváme nová jádra ochrany, která dokáží detekovat i složité hrozby v reálném čase a detekovat útoky phishing",
-            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shopy, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
+            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shop, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
             "Provádíme hloubkovou úpravu jader ochrany, aby byla ochrana rychlejší a spolehlivější",
             "Celkem 8 nových jader ochrany",
             "V pozadí pracujeme na úpravách, které poslouží jako základ budoucích vylepšení",
@@ -384,7 +389,7 @@
             "Ještě pořád na tom děláme...",
             "Nechte to na nás...",
             "Teď musíme provést důležité nastavení, čekejte prosím...",
-            "Teď se podívejme, co je v CyberSecure nového...",
+            "Teď se podívejme, co je CyberSecure nového...",
             "Dokončujeme poslední kroky!",
             "Kontrolujeme, že jsme vše udělali správně...",
             "Připravujeme vše, co bude potřeba..."
@@ -559,16 +564,30 @@
         function showLogo1() {
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
-                    <img src="obrazek1.png" alt="Logo 1" class="logo-img logo-visible">
+                    <img src="obrazek1.png" alt="Logo 1" class="logo-img show-element">
+                    <div id="loadingSpinner" class="spinner show-element" style="display: none;"></div>
                     <p id="updateProgressText" class="animated-text" style="margin-top: 15px; font-size: clamp(1.2em, 3vw, 1.5em);"></p>
                     <h1 id="updatePercentage" class="animated-text" style="margin-top: 10px; font-size: clamp(3em, 10vw, 5em); color: white;">0 %</h1>
                 </div>
             `;
+            const mainContent = document.querySelector('.full-screen-text');
+            const mainLogo = mainContent.querySelector('img');
+            const loadingSpinner = document.getElementById('loadingSpinner');
             const updateProgressText = document.getElementById('updateProgressText');
             const updatePercentage = document.getElementById('updatePercentage');
 
+            // Skrytí loga a spinnery na začátku, než začnou procenta
+            mainLogo.classList.remove('show-element');
+            mainLogo.classList.add('hide-element');
+            loadingSpinner.style.display = 'none'; // Ujistit se, že spinner je skrytý
+
             setTimeout(() => {
                 updateProgressText.textContent = "Probíhá aktualizace CyberSecure NTS...";
+                // Okamžité zobrazení loga a spinneru
+                mainLogo.classList.remove('hide-element');
+                mainLogo.classList.add('show-element');
+                loadingSpinner.style.display = 'block';
+
                 let progress = 0;
                 const totalTime = 6 * 60 * 1000;
                 const startTime = Date.now();
@@ -580,71 +599,113 @@
                     if (progress < 100) {
                         requestAnimationFrame(animateUpdateProgress);
                     } else {
-                        // Po dokončení procent se spustí nová sekvence
-                        document.body.innerHTML = `
-                            <div class="full-screen-text" style="background-color: black;">
-                                <img id="mainLogo" src="obrazek1.png" alt="Logo 1" class="logo-img logo-visible">
-                                <div id="mainSpinner" class="spinner"></div>
-                            </div>
-                        `;
-                        const mainLogo = document.getElementById('mainLogo');
-                        const mainSpinner = document.getElementById('mainSpinner');
+                        // Konec animace procent, začátek nové sekvence
+                        updateProgressText.style.display = 'none'; // Skrýt text
+                        updatePercentage.style.display = 'none'; // Skrýt procenta
+                        
+                        let totalDelay = 0;
 
-                        // 1. Po 5 sekundách logo zmizí (kolečko zůstává)
+                        // Funkce pro nastavení obsahu obrazovky
+                        const setScreen = (logoVisible, spinnerVisible, largeSpinner = false, bottomSpinner = false) => {
+                            mainContent.innerHTML = ''; // Vyčistit vše
+                            if (logoVisible) {
+                                const img = document.createElement('img');
+                                img.src = "obrazek1.png";
+                                img.alt = "Logo 1";
+                                img.className = "logo-img show-element";
+                                mainContent.appendChild(img);
+                            }
+                            if (spinnerVisible) {
+                                const spinner = document.createElement('div');
+                                spinner.className = largeSpinner ? "spinner large-spinner" : "spinner";
+                                if (bottomSpinner) {
+                                    spinner.classList.add('bottom-spinner');
+                                }
+                                mainContent.appendChild(spinner);
+                            }
+                        };
+                        
+                        // Sekvence animací:
+                        // - Nejdříve černá obrazovka 5 sekund
+                        totalDelay += 5000;
                         setTimeout(() => {
-                            mainLogo.classList.remove('logo-visible');
-                            mainLogo.classList.add('logo-hidden');
-                        }, 5000);
+                            mainContent.innerHTML = ''; // Černá obrazovka
+                        }, totalDelay);
 
-                        // 2. Po dalších 19 sekundách se logo opět objeví
+                        // - Následně Pouze logo obrazek1 na 19 sekund
+                        totalDelay += 19000;
                         setTimeout(() => {
-                            mainLogo.classList.remove('logo-hidden');
-                            mainLogo.classList.add('logo-visible');
-                        }, 5000 + 19000);
+                            setScreen(true, false); // Pouze logo
+                        }, totalDelay);
 
-                        // 3. Po 12 sekundách logo opět zmizí (kolečko zůstává)
+                        // - Následně černá obrazovka 6 sekund
+                        totalDelay += 6000;
                         setTimeout(() => {
-                            mainLogo.classList.remove('logo-visible');
-                            mainLogo.classList.add('logo-hidden');
-                        }, 5000 + 19000 + 12000);
+                            mainContent.innerHTML = ''; // Černá obrazovka
+                        }, totalDelay);
 
-                        // 4. Po 4 sekundách se logo znovu objeví
+                        // - Obrazek a kolečko 28 sekund
+                        totalDelay += 28000;
                         setTimeout(() => {
-                            mainLogo.classList.remove('logo-hidden');
-                            mainLogo.classList.add('logo-visible');
-                        }, 5000 + 19000 + 12000 + 4000);
+                            setScreen(true, true); // Logo a kolečko
+                        }, totalDelay);
 
-                        // 5. Po 7 sekundách zmizí logo i s kolečkem
+                        // - pouze kolečko 5 sekund
+                        totalDelay += 5000;
                         setTimeout(() => {
-                            mainLogo.classList.remove('logo-visible');
-                            mainLogo.classList.add('logo-hidden');
-                            mainSpinner.style.opacity = '0';
-                        }, 5000 + 19000 + 12000 + 4000 + 7000);
+                            setScreen(false, true); // Pouze kolečko
+                        }, totalDelay);
 
-                        // 6. Objeví se jen obří kolečko na 59 sekund
+                        // - logo a kolečko 15 sekund
+                        totalDelay += 15000;
                         setTimeout(() => {
-                            document.body.innerHTML = `
-                                <div class="full-screen-text" style="background-color: black;">
-                                    <div class="spinner large-spinner"></div>
-                                </div>
-                            `;
-                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000);
+                            setScreen(true, true); // Logo a kolečko
+                        }, totalDelay);
 
-                        // 7. Zmizí po 6 sekundách
+                        // - černá obrazovka 6 sekund
+                        totalDelay += 6000;
                         setTimeout(() => {
-                            document.body.innerHTML = `<div class="full-screen-text" style="background-color: black;"></div>`;
-                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000 + 6000);
+                            mainContent.innerHTML = ''; // Černá obrazovka
+                        }, totalDelay);
 
-                        // 8. Vynoří se logo a kolečko na 29 sekund, pak se posune na další fázi
+                        // - pouze logo 12 sekund
+                        totalDelay += 12000;
                         setTimeout(() => {
-                            document.body.innerHTML = `
-                                <div class="full-screen-text" style="background-color: black;">
-                                    <img src="obrazek1.png" alt="Logo 1" class="logo-img animated-text">
-                                    <div class="spinner animated-text" style="margin-top: 20px;"></div>
-                                </div>
-                            `;
-                            setTimeout(showLogo2, 29000); // Pokračování na showLogo2 po dokončení všech animací
-                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000 + 6000 + 29000);
+                            setScreen(true, false); // Pouze logo
+                        }, totalDelay);
+
+                        // - logo a kolečko 49 sekund
+                        totalDelay += 49000;
+                        setTimeout(() => {
+                            setScreen(true, true); // Logo a kolečko
+                        }, totalDelay);
+
+                        // - černá obrazovka 9 sekund
+                        totalDelay += 9000;
+                        setTimeout(() => {
+                            mainContent.innerHTML = ''; // Černá obrazovka
+                        }, totalDelay);
+
+                        // - pouze velké obří načítací kolečko v dolní části obrazovky, ne uprostřed 59 sekund
+                        totalDelay += 59000;
+                        setTimeout(() => {
+                            mainContent.innerHTML = ''; // Černá obrazovka předtím, než se kolečko objeví
+                            const spinner = document.createElement('div');
+                            spinner.className = "spinner large-spinner bottom-spinner";
+                            mainContent.appendChild(spinner);
+                        }, totalDelay);
+
+                        // - logo a normální kolečko 55 sekund 
+                        totalDelay += 55000;
+                        setTimeout(() => {
+                            setScreen(true, true); // Logo a normální kolečko
+                        }, totalDelay);
+                        
+                        // - Následně to půjde dál (showLogo2)
+                        totalDelay += 100; // Malá prodleva před přechodem
+                        setTimeout(() => {
+                            showLogo2();
+                        }, totalDelay);
                     }
                 }
                 requestAnimationFrame(animateUpdateProgress);
@@ -654,7 +715,7 @@
         function showLogo2() {
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
-                    <img src="obrazek2.png" alt="Logo 2" class="logo-img animated-text">
+                    <img src="obrazek2.png" alt="Logo 2" class="logo-img show-element">
                     <p class="animated-text" style="margin-top: 20px; font-size: clamp(1em, 2vw, 1.2em);">Powered by Rudolfský Software</p>
                     <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Kernel by RS</p>
                 </div>
@@ -796,4 +857,3 @@
     </script>
 </body>
 </html>
-
