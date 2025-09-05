@@ -242,6 +242,12 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .full-screen-text .large-spinner {
+            width: 120px; /* Větší velikost pro kolečko */
+            height: 120px;
+            border-width: 12px;
+        }
 
         .full-screen-text {
             position: fixed;
@@ -324,22 +330,17 @@
             margin-bottom: 20px;
             opacity: 0;
             transform: translateY(20px);
-            animation: logoFadeIn 1s forwards;
-            animation-delay: 0.5s;
+            transition: opacity 1s, transform 1s;
         }
 
-        @keyframes logoFadeIn {
-            to { opacity: 1; transform: translateY(0); }
+        .logo-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .animated-text {
-            animation: textFadeIn 1s forwards;
+
+        .logo-hidden {
             opacity: 0;
-            transform: translateY(20px);
-        }
-        
-        @keyframes textFadeIn {
-            to { opacity: 1; transform: translateY(0); }
+            transform: translateY(-20px);
         }
         
         #updatePercentage {
@@ -369,7 +370,7 @@
             "Podezřelé telefonáty jsou zahozeny a budete upozorněni",
             "Vylepšení ochrany proti spamu a phishingu",
             "Přidáváme nová jádra ochrany, která dokáží detekovat i složité hrozby v reálném čase a detekovat útoky phishing",
-            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shopy, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
+            "Přidáváme BlackListShop, na kterém budou zadány podvodné e-shopy, které neoprávněně shromažďují osobní údaje, údaje o platebních kartách, nebo se jedná o e-shop, které mají podvodnou reputaci dle souboru rizikových e-shopů ČOI z www.coi.gov.cz/rizikove",
             "Provádíme hloubkovou úpravu jader ochrany, aby byla ochrana rychlejší a spolehlivější",
             "Celkem 8 nových jader ochrany",
             "V pozadí pracujeme na úpravách, které poslouží jako základ budoucích vylepšení",
@@ -383,7 +384,7 @@
             "Ještě pořád na tom děláme...",
             "Nechte to na nás...",
             "Teď musíme provést důležité nastavení, čekejte prosím...",
-            "Teď se podívejme, co je v CyberSecure nového...",
+            "Teď se podívejme, co je CyberSecure nového...",
             "Dokončujeme poslední kroky!",
             "Kontrolujeme, že jsme vše udělali správně...",
             "Připravujeme vše, co bude potřeba..."
@@ -551,14 +552,14 @@
             `;
             setTimeout(() => {
                 document.body.innerHTML = `<div class="full-screen-text" style="background-color: black;"></div>`;
-                setTimeout(showLogo1, 5000);
+                setTimeout(showLogo1, 5000); 
             }, 13000);
         }
         
         function showLogo1() {
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
-                    <img src="obrazek1.png" alt="Logo 1" class="logo-img">
+                    <img src="obrazek1.png" alt="Logo 1" class="logo-img logo-visible">
                     <p id="updateProgressText" class="animated-text" style="margin-top: 15px; font-size: clamp(1.2em, 3vw, 1.5em);"></p>
                     <h1 id="updatePercentage" class="animated-text" style="margin-top: 10px; font-size: clamp(3em, 10vw, 5em); color: white;">0 %</h1>
                 </div>
@@ -579,37 +580,81 @@
                     if (progress < 100) {
                         requestAnimationFrame(animateUpdateProgress);
                     } else {
+                        // Po dokončení procent se spustí nová sekvence
+                        document.body.innerHTML = `
+                            <div class="full-screen-text" style="background-color: black;">
+                                <img id="mainLogo" src="obrazek1.png" alt="Logo 1" class="logo-img logo-visible">
+                                <div id="mainSpinner" class="spinner"></div>
+                            </div>
+                        `;
+                        const mainLogo = document.getElementById('mainLogo');
+                        const mainSpinner = document.getElementById('mainSpinner');
+
+                        // 1. Po 5 sekundách logo zmizí (kolečko zůstává)
+                        setTimeout(() => {
+                            mainLogo.classList.remove('logo-visible');
+                            mainLogo.classList.add('logo-hidden');
+                        }, 5000);
+
+                        // 2. Po dalších 19 sekundách se logo opět objeví
+                        setTimeout(() => {
+                            mainLogo.classList.remove('logo-hidden');
+                            mainLogo.classList.add('logo-visible');
+                        }, 5000 + 19000);
+
+                        // 3. Po 12 sekundách logo opět zmizí (kolečko zůstává)
+                        setTimeout(() => {
+                            mainLogo.classList.remove('logo-visible');
+                            mainLogo.classList.add('logo-hidden');
+                        }, 5000 + 19000 + 12000);
+
+                        // 4. Po 4 sekundách se logo znovu objeví
+                        setTimeout(() => {
+                            mainLogo.classList.remove('logo-hidden');
+                            mainLogo.classList.add('logo-visible');
+                        }, 5000 + 19000 + 12000 + 4000);
+
+                        // 5. Po 7 sekundách zmizí logo i s kolečkem
+                        setTimeout(() => {
+                            mainLogo.classList.remove('logo-visible');
+                            mainLogo.classList.add('logo-hidden');
+                            mainSpinner.style.opacity = '0';
+                        }, 5000 + 19000 + 12000 + 4000 + 7000);
+
+                        // 6. Objeví se jen obří kolečko na 59 sekund
+                        setTimeout(() => {
+                            document.body.innerHTML = `
+                                <div class="full-screen-text" style="background-color: black;">
+                                    <div class="spinner large-spinner"></div>
+                                </div>
+                            `;
+                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000);
+
+                        // 7. Zmizí po 6 sekundách
                         setTimeout(() => {
                             document.body.innerHTML = `<div class="full-screen-text" style="background-color: black;"></div>`;
-                            setTimeout(showLogo1Again, 5000);
-                        }, 1000);
+                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000 + 6000);
+
+                        // 8. Vynoří se logo a kolečko na 29 sekund, pak se posune na další fázi
+                        setTimeout(() => {
+                            document.body.innerHTML = `
+                                <div class="full-screen-text" style="background-color: black;">
+                                    <img src="obrazek1.png" alt="Logo 1" class="logo-img animated-text">
+                                    <div class="spinner animated-text" style="margin-top: 20px;"></div>
+                                </div>
+                            `;
+                            setTimeout(showLogo2, 29000); // Pokračování na showLogo2 po dokončení všech animací
+                        }, 5000 + 19000 + 12000 + 4000 + 7000 + 59000 + 6000 + 29000);
                     }
                 }
                 requestAnimationFrame(animateUpdateProgress);
             }, 15000);
         }
 
-        function showLogo1Again() {
-            document.body.innerHTML = `
-                <div class="full-screen-text" style="background-color: black;">
-                    <img src="obrazek1.png" alt="Logo 1" class="logo-img">
-                </div>
-            `;
-            setTimeout(() => {
-                document.body.innerHTML = `
-                    <div class="full-screen-text" style="background-color: black;">
-                        <img src="obrazek1.png" alt="Logo 1" class="logo-img">
-                        <div class="spinner" style="margin-top: 20px;"></div>
-                    </div>
-                `;
-                setTimeout(showLogo2, 16000);
-            }, 7000);
-        }
-
         function showLogo2() {
             document.body.innerHTML = `
                 <div class="full-screen-text" style="background-color: black;">
-                    <img src="obrazek2.png" alt="Logo 2" class="logo-img">
+                    <img src="obrazek2.png" alt="Logo 2" class="logo-img animated-text">
                     <p class="animated-text" style="margin-top: 20px; font-size: clamp(1em, 2vw, 1.2em);">Powered by Rudolfský Software</p>
                     <p class="animated-text" style="font-size: clamp(1em, 2vw, 1.2em);">Kernel by RS</p>
                 </div>
@@ -681,7 +726,7 @@
                 if (currentUpdateLogIndex === updateLog.length - 1) {
                     slideContent = `
                         <h2 class="animated-text">Podívejte se, v čem jsme se zlepšili.</h2>
-                        <p class="animated-text">${updateLog[currentUpdateLogIndex]} Stáhněte si aplikaci Internet NTS, sledujte aktuální výpadky Wi-Fi, ověřte, proč Vám nefunguje internet nebo nahlaste nový problém s internetem nebo výpadek. Také můžete sledovat rychlost internetu a když je nutný restart internetu, tak jej bez meškání provést pro zajištění stabilního připojení! Aplikaci Vám za okamžik pomůžeme nainstalovat, ale nejdříve dokončíme aktualizaci CyberSecure NTS...</p>
+                        <p class="animated-text">${updateLog[currentUpdateLogIndex]} Stáhněte si aplikaci Internet NTS, sledujte aktuální výpadky Wi-Fi, ověřte, proč Vám nefunguje internet nebo nahlaste nový problém s internetem nebo výpadek. Také můžete sledovat rychlost internetu a když je nutný restart internetu, tak jej bez meškání provést pro zajištění stabilního připojení! Aplikaci Vám za okamžik pomůžeme nainstalovat, ale nejdříve dokončím aktualizaci CyberSecure NTS...</p>
                     `;
                     buttonText = 'Dokončit';
                 } else {
@@ -751,4 +796,3 @@
     </script>
 </body>
 </html>
-
